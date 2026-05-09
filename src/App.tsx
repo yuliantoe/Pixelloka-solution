@@ -89,6 +89,8 @@ export default function App() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+  const [checkoutStep, setCheckoutStep] = useState<'details' | 'payment'>('details');
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -140,6 +142,17 @@ export default function App() {
         return newErrors;
       });
     }
+  };
+
+  const handlePackageSelect = (packageName: string) => {
+    setSelectedPackage(packageName);
+    setCheckoutStep('details');
+    // Reset checkout specific details if we had any
+  };
+
+  const handleCheckoutSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setCheckoutStep('payment');
   };
 
   return (
@@ -381,7 +394,10 @@ export default function App() {
                   </li>
                 ))}
               </ul>
-              <button className="w-full py-4 rounded-xl border border-slate-900 text-slate-900 font-bold hover:bg-slate-900 hover:text-white transition-all active:scale-95">
+              <button 
+                onClick={() => handlePackageSelect('Perorangan')}
+                className="w-full py-4 rounded-xl border border-slate-900 text-slate-900 font-bold hover:bg-slate-900 hover:text-white transition-all active:scale-95"
+              >
                 Pilih Paket
               </button>
             </motion.div>
@@ -417,7 +433,10 @@ export default function App() {
                   </li>
                 ))}
               </ul>
-              <button className="w-full py-4 rounded-xl bg-brand-600 text-white font-bold hover:bg-brand-700 transition-all active:scale-95 shadow-lg shadow-brand-500/20">
+              <button 
+                onClick={() => handlePackageSelect('Sekolah / Yayasan')}
+                className="w-full py-4 rounded-xl bg-brand-600 text-white font-bold hover:bg-brand-700 transition-all active:scale-95 shadow-lg shadow-brand-500/20"
+              >
                 Pilih Paket
               </button>
             </motion.div>
@@ -452,7 +471,10 @@ export default function App() {
                   </li>
                 ))}
               </ul>
-              <button className="w-full py-4 rounded-xl bg-white text-slate-900 font-bold hover:bg-brand-500 hover:text-white transition-all active:scale-95">
+              <button 
+                onClick={() => handlePackageSelect('Perusahaan')}
+                className="w-full py-4 rounded-xl bg-white text-slate-900 font-bold hover:bg-brand-500 hover:text-white transition-all active:scale-95"
+              >
                 Hubungi Kami
               </button>
             </motion.div>
@@ -811,6 +833,106 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Checkout Modal */}
+      <AnimatePresence>
+        {selectedPackage && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedPackage(null)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              <div className="p-6 md:p-8 bg-brand-600 text-white shrink-0">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold">Lanjutkan Pembayaran</h3>
+                    <p className="text-brand-100 text-sm">Paket {selectedPackage}</p>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedPackage(null)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <div className={`h-1.5 flex-1 rounded-full transition-all ${checkoutStep === 'details' ? 'bg-white' : 'bg-white/30'}`}></div>
+                  <div className={`h-1.5 flex-1 rounded-full transition-all ${checkoutStep === 'payment' ? 'bg-white' : 'bg-white/30'}`}></div>
+                </div>
+              </div>
+
+              <div className="p-6 md:p-8 overflow-y-auto">
+                {checkoutStep === 'details' ? (
+                  <form onSubmit={handleCheckoutSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700">Nama Lengkap</label>
+                        <input required type="text" placeholder="Masukkan nama Anda" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700">Nomor WhatsApp</label>
+                        <input required type="tel" placeholder="08xxxxxxxxxx" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700">Email Utama</label>
+                        <input required type="email" placeholder="email@contoh.com" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none" />
+                      </div>
+                    </div>
+                    <button type="submit" className="w-full py-4 bg-brand-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-700 transition-all">
+                      Pilih Metode Pembayaran <ChevronRight size={20} />
+                    </button>
+                  </form>
+                ) : (
+                  <div className="space-y-8">
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-4 uppercase tracking-widest text-xs">E-Wallet</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        {[
+                          { name: 'OVO', icon: '🟣', color: 'bg-purple-50' },
+                          { name: 'Dana', icon: '🔵', color: 'bg-blue-50' },
+                          { name: 'GoPay', icon: '🟢', color: 'bg-green-50' },
+                          { name: 'LinkAja', icon: '🔴', color: 'bg-red-50' }
+                        ].map((pay) => (
+                          <button key={pay.name} className={`p-4 rounded-2xl border border-slate-100 flex flex-col items-center gap-2 hover:border-brand-500 hover:shadow-md transition-all ${pay.color}`}>
+                            <span className="text-2xl">{pay.icon}</span>
+                            <span className="font-bold text-sm">{pay.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-4 uppercase tracking-widest text-xs">Virtual Account (Bank Transfer)</h4>
+                      <div className="space-y-3">
+                        {['Bank BCA', 'Bank Mandiri', 'Bank BNI'].map((bank) => (
+                          <button key={bank} className="w-full p-4 rounded-xl border border-slate-100 flex items-center justify-between hover:border-brand-500 hover:shadow-sm transition-all bg-slate-50">
+                            <span className="font-bold">{bank}</span>
+                            <ChevronRight size={18} className="text-slate-400" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setCheckoutStep('details')}
+                      className="w-full text-slate-500 text-sm font-medium hover:text-slate-900 py-2"
+                    >
+                      Kembali ke detail data
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
