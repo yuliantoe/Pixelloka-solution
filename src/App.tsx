@@ -149,14 +149,14 @@ export default function App() {
         isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-slate-200 py-4' : 'bg-transparent py-6'
       }`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+          <a href="#" className="flex items-center gap-2 group cursor-pointer">
+            <div className="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
               <Shield size={24} />
             </div>
-            <span className="text-xl font-black tracking-tight text-slate-900">
+            <span className="text-xl font-black tracking-tight text-slate-900 group-hover:text-brand-600 transition-colors">
               PIXELLOKA <span className="text-brand-600">SOLUTION</span>
             </span>
-          </div>
+          </a>
 
           <div className="hidden md:flex items-center gap-8">
             <NavItem href="#layanan">Layanan</NavItem>
